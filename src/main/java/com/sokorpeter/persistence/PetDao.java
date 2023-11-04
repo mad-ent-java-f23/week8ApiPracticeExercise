@@ -11,6 +11,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -26,12 +27,20 @@ public class PetDao {
      * @return the pet by id
      */
     public Pet getPetById(long petId) {
+        InputStream input = getClass().getClassLoader().getResourceAsStream(
+                "config.properties");
+        if(input == null) {
+            logger.error("can't find config.properties file");
+            throw new RuntimeException("config.properties file is not found");
+        }
+
+
         Properties properties = new Properties();
-        try (FileInputStream fis = new FileInputStream("/Users/mac/EntJavaRepos/WEEK8/petstoreApi/src/main/resources/config.properties")) {
-            properties.load(fis);
-        } catch (IOException e) {
-            logger.error("Error loading config.properties", e);
-            throw new RuntimeException(e);
+        try {
+            properties.load(input);
+        } catch (IOException exception) {
+            logger.error("can't load data from properties file");
+            throw new RuntimeException(exception);
         }
 
         // get the url address from properties file
